@@ -1,0 +1,50 @@
+<?
+	$session = Core_SH_Session::get();
+	$current_controller = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
+	$current_action = Zend_Controller_Front::getInstance()->getRequest()->getActionName();
+	$lf_menu =array(
+		//array("title" => "Dashboard",			 "href" => "/packing/index"),
+		array("title" => "Packing List",		 "href" => "/packing/packinglist"),
+		//array("title" => "Enter Tracking Number","href" => "/packing/tracking"),
+		array("title" => "PO's",				 "href" => "/packing/po"),
+		array("title" => "Items in production", "href" => "/packing/itemproduction"),
+		array("title" => "Factory Packing", 	"href" => "/factorypacking/newpacking/psid/new", "confirm"=>"Please confirm to generate a FRESH packing list number which will not have any line item."),
+	);
+	if($session->getNamespace()=="Backoffice"){
+?><h2><span class="label label-success"> Packing List </span></h2>
+<div class='row'>
+	<div class='col-md-1 text-right'>Vendor:</div>
+	<div class='col-md-2'><select id='select_vendor_id' onchange='fl_change_vendor(this)' class='form-control'><?=Core_SH_Dropdown::fill("m_vendors", "vendor_name",$session->vendor_id, "Select...");?></select></div>
+	<div class='col-md-9'>
+		<ul class="nav nav-tabs">
+<?
+	foreach($lf_menu as $itemMenu){
+		echo "<li ".($itemMenu['href']=="/$current_controller/$current_action"?"class='active'":"")."><a href='$itemMenu[href]' onclick='".($itemMenu['confirm']!=""?"if(!confirm(\"{$itemMenu[confirm]}\")){return false;}else if(selected_vendor_id==0){alert(\"please select Vendor.\");return false;}":"").";location.href=\"$itemMenu[href]\"'>$itemMenu[title]</a></li>";
+	}
+?>
+		</ul>	
+	</div>
+</div>
+
+<?
+}elseif($session->getNamespace()=="FactoryLogin"){
+	//menu is created in layout of factoryLogin
+}
+?>
+
+<script>
+	var selected_vendor_id=0;
+	$(document).ready(function(){
+		selected_vendor_id = $("#select_vendor_id").val();
+	});
+	function fl_change_vendor(selectVendor){
+		$("#page_container").children().each(function() {
+			$(this).fadeTo("slow", 0.2);
+		});
+		$(selectVendor).append("&nbsp;<li class='fa-spin fa-sppiner'></li>")
+		$.get("/packing/index/vendorid/"+$(selectVendor).val(),function(r){
+			selected_vendor_id = $(selectVendor).val();
+			location.href=location.href;
+		})
+	}
+</script>

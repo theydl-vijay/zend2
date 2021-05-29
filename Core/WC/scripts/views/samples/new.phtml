@@ -1,0 +1,217 @@
+<script type="text/javascript" src="/js/jquery/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="/js/jquery/ui/jquery-ui-1.8.2.custom.js"></script>
+<script type='text/javascript' src='/js/library/fancybox/jquery.fancybox-1.3.1.js'></script>
+<link rel="stylesheet" type="text/css" href="/js/library/fancybox/jquery.fancybox-1.3.1.css" media="screen" />
+<?
+if($this->id>0) {
+	$sample = Core_SH_Db::get("samples", $this->id);
+}
+?>
+<style>
+.img_gallery {
+	cursor:pointer;
+}
+#fancybox-wrap {
+position: absolute;
+top: 0;
+left: 0;
+margin: 0;
+padding: 20px;
+z-index: 1101;
+display: none;
+-moz-box-sizing: content-box;
+-webkit-box-sizing: content-box;
+-safari-box-sizing: content-box;
+box-sizing: content-box;
+}
+
+#fancybox-outer {
+position: relative;
+width: 100%;
+height: 100%;
+background: #FFF;
+-moz-box-sizing: content-box;
+-webkit-box-sizing: content-box;
+-safari-box-sizing: content-box;
+box-sizing: content-box;
+}
+
+#fancybox-inner {
+position: absolute;
+top: 0;
+left: 0;
+width: 1px;
+height: 1px;
+padding: 0;
+margin: 0;
+outline: none;
+overflow: hidden;
+-moz-box-sizing: content-box;
+-webkit-box-sizing: content-box;
+-safari-box-sizing: content-box;
+box-sizing: content-box;
+}
+</style>
+<center><a href='/samples'>Go Back</a></center>
+<form method=post enctype="multipart/form-data" onsubmit="return check_internal_number(this)" id="frm_sample">
+	<input type=hidden name="act" value="save">
+	<input type=hidden name="actquit" value="">
+<div style="margin:auto; width:800px">
+	<h2><?= $this->id==""?"Add new":"" ?></h2>
+	
+	<div class="row">
+		<div class="col-md-3 ao-right">Internal Number: </div>
+		<div class="col-md-9"><input type=text name=internal_number value="<?= $sample["internal_number"] ?>"></div>
+	</div>
+	<?
+	if(Plugin_ACL::user_can_link_sample_to_style(Core_SH_Session::getVal("user_id"))) { 
+		if($sample["sh_style_id"]) {
+		?>
+	<div class="row">
+		<div class="col-md-3 ao-right">Linked to style: </div>
+		<div class="col-md-9"><?= Core_SH_Db::get("styles",$sample["sh_style_id"],"name") ?></div>
+	</div>
+	<?
+			
+		} else {
+		?>
+	<div class="row">
+		<div class="col-md-3 ao-right">Link to style: </div>
+		<div class="col-md-9"><input type=text name=style_name id="style_search" onkeyup="search({search_type:'style',return_action:'link_sample_to_style(__value__);'})" placeholder="Search style to link" onfocus="_searching=1;" onblur="_searching=0;search_end(0);" onkeypress="if(event.keyCode==13) { return false; }"></div>
+	</div>
+	<?
+		}
+	}
+	?>
+	<div class="row">
+		<div class="col-md-3 ao-right">Photos: </div>
+		<div class="col-md-9">
+		<?
+		$photos = json_decode($sample["photos"],1);
+		$photos_dates = json_decode($sample["photos_dates"],1);
+		$photos_comments = json_decode($sample["photos_comments"],1);
+		$sh_photos_mapped_stylescs_id = json_decode($sample["sh_photos_mapped_stylescs_id"],1);
+		$gallery_data=array();
+		if(is_array($photos) && count($photos)) {
+			$imgsrv = new Core_SH_ImagesServer;
+			
+			$urls = $imgsrv->resizedUrlArray($photos,"small");
+			$o_urls = $imgsrv->originalUrlArray($photos,array());
+			
+			echo "<input type=button class='img_gallery btn yellow' value=' Open Gallery ' style='margin:10px'><br>";
+			
+			foreach($urls as $uid => $u) {
+				$image_idx = array_search($uid,$photos);
+				
+				$udate = "Uploaded date: ".date("Y-m-d H:i", $photos_dates[$image_idx]);
+				
+				if($sample["sh_style_id"]) {
+					if(Core_SH_Helpers::appRegistry("appnamespace")=="Backoffice") {
+						$sh_admin_link = "<br><select name=sh_photos_mapped_stylescs_id[{$image_idx}]><option value=''>Select color</option>";
+						$combs = $this->db->query("SELECT id,color_name FROM styles_cs WHERE style_id=$sample[sh_style_id] GROUP BY color_name ORDER BY color_name,size_name");
+						while($row=$combs->fetch()) {
+							$sh_admin_link .= "<option value='$row[id]' ".($sh_photos_mapped_stylescs_id[$image_idx]==$row["id"]?"selected='selectd'":"").">$row[color_name]</option>";
+						}
+						$sh_admin_link .= "</select>";
+					} else {
+						$sh_admin_link = Core_SH_Db::get("styles_cs", $sample["sh_style_id"], "color_name");
+					}
+				}
+				
+				echo "<div style='float:left;text-align:center;background:#C9E4C9;border-radius:15px!important;margin:10px;padding:10px;'>
+						<img src='$u' style='margin:10px;'><br>$udate<br>
+						<textarea name=photos_comments[$image_idx] style='width:100%;' placeholder='Enter Color & Comments' rows=3 maxlength=250>".$photos_comments[$image_idx]."</textarea>
+						<br>
+						<a href='/samples/new/id/".$this->id."/deletephoto/".$image_idx."' onclick='return confirm(\"Are you sure you want to delete this photo?\")'>[x] delete photo</a>
+						$sh_admin_link
+					</div>";
+				
+				$gallery_data[] = array("href" => $o_urls[$uid], "title" => $photos_comments[$image_idx]." ($udate)");
+			}
+		}
+		?>
+		<div class="clearfix"></div>
+		<br>
+		Add photos: <input type=file name=new_photo[] multiple>
+		</div>
+	</div>
+		<br>
+	<div class="row">
+		<div class="col-md-3 ao-right">Factory Cost: </div>
+		<div class="col-md-9"><input type=text name=factory_cost value="<?= $sample["factory_cost"] ?>"></div>
+	</div>
+	<div class="row">
+		<div class="col-md-3 ao-right">Production Time: </div>
+		<div class="col-md-9"><input type=text name=production_time value="<?= $sample["production_time"] ?>"></div>
+	</div>
+	<div class="row">
+		<div class="col-md-3 ao-right">Notes: </div>
+		<div class="col-md-9"><textarea rows=3 cols=40 name=notes ><?= $sample["notes"] ?></textarea></div>
+	</div>
+</div>
+<center>
+	
+	<input type=submit class="btn green" value=" Save ">&nbsp;<input type=submit class="btn blue" onclick="this.form.actquit.value=1" value=" Save and quit ">
+	
+<?
+if($sample["sh_style_id"]) {
+	$style = Core_SH_Db::get("styles",$sample["sh_style_id"]);
+	echo "<h2>Style: $style[name]</h2>";
+	$cs = json_decode($sample["sh_photos_mapped_stylescs_id"],1);
+	foreach($cs as $cs_id) {
+		$row_cs = Core_SH_Db::get("styles_cs",$cs_id);
+		echo $row_cs["color_name"]."/".$row_cs["size_name"]."<br>";
+	}
+	echo "<br><h3>Sample fit confirm date: $style[sample_confirm_date]</h3>";
+}
+?>
+</center>
+
+
+</form>
+<script>
+function check_internal_number(frm) {
+	var c="ABCEFGHIJKLMNOPQRTSUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
+	
+	str = frm.internal_number.value.split("");
+	for(var i=0; i<str.length; i++) {
+		if(c.indexOf(str[i])==-1) {
+			alert("Invalid internal number");
+			
+			return false;
+		}
+	}
+	
+	$.get("/samples/new/id/<?= $this->id ?>/checkin/"+frm.internal_number.value<?= !Core_SH_Session::getVal("vendor_id")?"/vid/$sample[vendor_id]":"" ?>, function(r) {
+		if(r=="ok") {
+			document.getElementById("frm_sample").submit();
+		} else {
+			alert("Cannot save. Internal number must be unique!");
+		}
+	});
+	return false;
+}
+
+$(document).ready(function() {
+	 $(".img_gallery").click(function() {
+		$.fancybox(<?= stripslashes(json_encode($gallery_data)) ?>, {
+			'padding'			: 0,
+			'transitionIn'		: 'none',
+			'transitionOut'		: 'none',
+			'type'              : 'image',
+			'changeFade'        : 0
+		});
+	});
+});
+
+function link_sample_to_style(data) {
+	s = data.info;
+	
+	style_id = s.split("(").pop().split(",").shift();
+	
+	if(confirm("Are you sure you want to link this sample to the style?")) {
+		location.href="/samples/new/id/<?= $sample["id"] ?>/linkstyle/"+style_id;
+	}
+}
+
+</script>

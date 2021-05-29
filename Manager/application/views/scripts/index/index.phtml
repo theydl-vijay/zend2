@@ -1,0 +1,91 @@
+<div class="container my-4">
+    <center><h3 class="pt-1 pb-3">Shipping Project</h3></center>
+    <form method="post">
+        <div class="jumbotron bg-white shadow-sm py-3 px-3">
+            <h5 class="pb-2">Shipping From Address</h5>
+            <ul class="text-capitalize">
+                <li>name : vijay<input type="hidden" name="from_name" value="vijay"></li>
+                <li>street : Odhav - vastral<input type="hidden" name="from_street" value="Odhav - vastral"></li>
+                <li>city : Ahemdabad<input type="hidden" name="from_city" value="Ahemdabad"></li>
+                <li>state : Gujarat<input type="hidden" name="from_state" value="Gujarat"></li>
+                <li>zip : 362140<input type="hidden" name="from_zip" value="362140"></li>
+                <li>country : India<input type="hidden" name="from_country" value="India"></li>
+            </ul>
+        </div>
+        <div class="jumbotron bg-white shadow-sm py-3 px-3 my-3 text-capitalize">
+            <h5 class="pb-2">Shipping Address</h5>
+            <div class="row">
+                <div class="mb-3 col-lg-4">
+                    <label  class="form-label">name</label>
+                    <input type="text" name="name" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">street</label>
+                    <input type="text" name="street" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">city</label>
+                    <input type="text" name="city" class="form-control">
+                </div>
+            </div>    
+            <div class="row">
+                <div class="mb-3 col-lg-4">
+                    <label  class="form-label">state</label>
+                    <input type="text" name="state" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">zip</label>
+                    <input type="text" name="zip" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">country</label>
+                    <input type="text" name="country" class="form-control">
+                </div>
+            </div>    
+        </div>
+        <div class="jumbotron bg-white shadow-sm py-3 px-3 my-3 text-capitalize">
+            <h5 class="pb-2">Parcel Details</h5>
+            <div class="row">
+                <div class="mb-3 col-lg-4">
+                    <label  class="form-label">length</label>
+                    <input type="text" name="length" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">width</label>
+                    <input type="text" name="width" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">height</label>
+                    <input type="text" name="height" class="form-control">
+                </div>
+            </div>    
+            <div class="row">
+                <div class="mb-3 col-lg-4">
+                    <label  class="form-label">distance unit</label>
+                    <input type="text" name="distance_unit" class="form-control">
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">weight</label>
+                    <select class="form-select" name="weight" aria-label="Default select example">
+                        <option selected disabled>Open this</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="mb-3 col-lg-4">
+                    <label class="form-label">mass unit</label>
+                    <select class="form-select" name="mass_unit" aria-label="Default select example">
+                        <option selected disabled>Open this</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+            </div>    
+        </div>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary w-50">Submit</button>
+        </div>
+    </form>
+</div>

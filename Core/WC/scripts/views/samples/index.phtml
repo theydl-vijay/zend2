@@ -1,0 +1,22 @@
+<div class="row">
+	<div class="col-md-4">
+		<h2>Samples</h2>
+	</div>
+	<div class="col-md-4">
+		<?
+		if($this->msg=="i") {
+			echo "<h4>Row inserted</h4>";
+		} elseif($this->msg=="u") {
+			echo "<h4>Row updated</h4>";
+		}
+		?>
+	</div>
+	<div class="col-md-4">
+		<?
+		if(Core_SH_Session::getVal("vendor_id")>0) { ?>
+		<center><a class="btn blue" href="/samples/new">Add New</a></center>
+	<? 	} ?>
+	</div>
+</div>
+<?= $this->table ?>
+	
